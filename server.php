@@ -50,6 +50,9 @@ function startAppServer($serverIp, $bindPort, $secondsIdle, $timeZone) {
 			
 			// Read client
 			$clientRead = fread($conn, 10240);
+			
+			
+			// Cut up what client sent
 			$clientArray = explode(':::', $clientRead);
 			
 			
@@ -59,7 +62,6 @@ function startAppServer($serverIp, $bindPort, $secondsIdle, $timeZone) {
 			
 			// Client's IP address
 			$clientIp = $clientArray[1];
-			
 			
 			
 			if (!empty($client)) {
