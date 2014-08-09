@@ -2,9 +2,12 @@
 // Report simple running errors
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 
-// Set client parameter
+
+// Set client parameters
 appClient('localhost', '9001', $_GET['appclient'], gethostbyname(exec('hostname')));
 
+
+// Code for app client
 function appClient($serverName, $serverPort, $param, $clientIp) {
 	try {
 		
@@ -22,11 +25,11 @@ function appClient($serverName, $serverPort, $param, $clientIp) {
 		}
 		
 		
-		// Connect to server
+		// Connect to app server
 		$client = stream_socket_client('tcp://'.$serverIP.':'.$serverPort, $errno, $errorMessage);
 		
 		if (!$client) {
-			throw new Exception($errorMessage);
+			throw new Exception($errorMessage. '('.$errno.')');
 		}
 
 		
@@ -42,7 +45,7 @@ function appClient($serverName, $serverPort, $param, $clientIp) {
 		$result =  stream_get_contents($client);
 		
 		// Return results
-		print_r($result); 
+		echo $result; 
 		
 		// Close client connections
 		fclose($client);	
@@ -54,7 +57,6 @@ function appClient($serverName, $serverPort, $param, $clientIp) {
 		
 		// Close the server socket
 		fclose ($client);
-		exit;
 	}
 	
 }

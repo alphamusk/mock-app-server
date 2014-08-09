@@ -2,20 +2,19 @@
 // Report simple running errors
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 
-// Start a server
+	// Start a server
 	while(true) {
-		startServer('0.0.0.0', '9001', 5, 'MST');
+		startAppServer('0.0.0.0', '9001', 5, 'MST');
 	}
 	
 	
 	
-	
 // Code for App Server
-function startServer($serverIp, $bindPort, $secondsIdle, $timeZone) {
+function startAppServer($serverIp, $bindPort, $secondsIdle, $timeZone) {
 	try {
 		
 		
-		// Set Timezone
+		// Check and set Timezone
 		if(!empty($timeZone)) {
 			date_default_timezone_set($timeZone);
 		} else {
@@ -23,24 +22,25 @@ function startServer($serverIp, $bindPort, $secondsIdle, $timeZone) {
 		}
 		
 		
-		// Is the Server IP valid
+		// Check for a valid Server IP
 		if (empty($serverIp) || !filter_var($serverIp, FILTER_VALIDATE_IP)) {
     		throw new Exception('Server IP address is invalid');
 		}
 		
 		
+		// Check for bind port
 		if(empty($bindPort)) {
 			throw new Exception('Server binding port is invalid');
 		}
 		
 		
 		// Create and Open server socket
-		$socket = stream_socket_server('tcp://'.$serverIp.':'.$bindPort, $errno, $errstr);
+		$socket = stream_socket_server('tcp://'.$serverIp.':'.$bindPort, $errno, $errorMessage);
 		
 		
 		// Check to ensure socket was created
 		if(!$socket) {
-			throw new Exception($errstr. '('.$errno.')');
+			throw new Exception($errorMessage. '('.$errno.')');
 		}
 		
 	
@@ -49,18 +49,20 @@ function startServer($serverIp, $bindPort, $secondsIdle, $timeZone) {
 
 			
 			// Read client
-			
-			$clientRead = fread($conn, 1024);
+			$clientRead = fread($conn, 10240);
 			$clientArray = explode(':::', $clientRead);
 			
+			
+			// Client's command sent
 			$client = $clientArray[0];
+			
+			
+			// Client's IP address
 			$clientIp = $clientArray[1];
 			
 			
+			
 			if (!empty($client)) {
-				
-				$clientName = $_SERVER['REMOTE_ADDR'];
-				
 				
 				// Run client param
 				$result = exec($client, $output, $retval);
@@ -70,14 +72,19 @@ function startServer($serverIp, $bindPort, $secondsIdle, $timeZone) {
 				if($retval == 0) {
 					fwrite($conn, $result);					
 				} else {
+					// Send error back to client
 					fwrite($conn, 'Server Error: Command "'.$client.'" not valid.'."\n");
-					throw new Exception('Unknown command "'.$client.'" from client '.$clientIp);
 					
+					// Log error if we have client IP, else log alternate error
+					if (!empty($clientIp)) {
+						throw new Exception('Unknown command "'.$client.'" from client '.$clientIp);
+					} else {
+						throw new Exception('Unknown command "'.$client.'" from unknown client');
+					}
 				}
-				
 
 				
-				// Log 
+				// Log success
 				echo "Success\t".date('Y-m-d'."\t\G\M\T". 'O g:i:s e')."\t".exec('hostname').': "'.$client.'" from client '.$clientIp."\n";
 				
 				// Close the client connection
@@ -87,7 +94,7 @@ function startServer($serverIp, $bindPort, $secondsIdle, $timeZone) {
 			} else {
 				
 				
-				// Close the client connection
+				// Close the client connection and send null client request
 				fclose($conn);
 				throw new Exception('Null client request');
 				
