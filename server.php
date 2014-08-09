@@ -106,5 +106,4 @@ function startServer($serverIp, $bindPort, $secondsIdle, $timeZone) {
 	
 }
 
-
 ?>

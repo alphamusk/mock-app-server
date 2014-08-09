@@ -57,12 +57,6 @@ function appClient($serverName, $serverPort, $param, $clientIp) {
 		exit;
 	}
 	
-	
-	
-
-
-	
-
 }
 
 ?>
