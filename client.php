@@ -1,11 +1,37 @@
+<html>
+<head>
+	<title>App Client</title>
+	<style>
+		#serverResponse {
+			padding: 5px 10px 5px 10px;
+			background-color: #CCC;
+			color: #a70303;
+			border: 1px solid #999;
+		}
+		p {
+			font-family: "Arial","Helvetica";
+			font-size: 80%;
+		}
+		span {
+			font-weight: bold;
+			
+		}
+	
+	</style>
+</head>
+	<body>
+		<?php 
+		// Report simple running errors
+		error_reporting(E_ERROR | E_WARNING | E_PARSE);
+
+		// Set client parameters
+		appClient('localhost', '9001', $_GET['appclient'], gethostbyname(exec('hostname')));
+		
+		?>
+	</body>
+</html>
+
 <?php
-// Report simple running errors
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
-
-
-// Set client parameters
-appClient('localhost', '9001', $_GET['appclient'], gethostbyname(exec('hostname')));
-
 
 // Code for app client
 function appClient($serverName, $serverPort, $param, $clientIp) {

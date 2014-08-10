@@ -1,3 +1,5 @@
+
+
 <?php
 // Report simple running errors
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
@@ -49,14 +51,14 @@ function startAppServer($serverIp, $bindPort, $secondsIdle, $timeZone) {
 
 			
 			// Read client
-			$clientRead = fread($conn, 10240);
+			$clientRead = fread($conn, 1024);
 			
 			
 			// Cut up what client sent
 			$clientArray = explode(':::', $clientRead);
 			
 			
-			// Client's command sent
+			// Client's option sent
 			$client = $clientArray[0];
 			
 			
@@ -64,24 +66,36 @@ function startAppServer($serverIp, $bindPort, $secondsIdle, $timeZone) {
 			$clientIp = $clientArray[1];
 			
 			
+			// Check to make sure client connected
 			if (!empty($client)) {
 				
-				// Run client param
-				$result = exec($client, $output, $retval);
+				
+				// Define Server IP via PHP
+				$myName = exec('hostname');
+				
+				
+				// Calc sqrt of random num
+				$randomNum = rand(0, 99999999999999);
+				$squareRoot = sqrt($randomNum);
 				
 				
 				// Respond back to client
-				if($retval == 0) {
-					fwrite($conn, $result);					
+				if($client == 'sqrt') {
+			 		fwrite($conn, 
+			 				'<div id="serverResponse">'.
+			 				'<p>App Server <span>'.$myName.'</span><br/>'.
+			 				'The Square Root of '.$randomNum.' is '.$squareRoot.'</p>'.
+			 				'</div>');	
+					
 				} else {
 					// Send error back to client
-					fwrite($conn, 'Server Error: Command "'.$client.'" not valid.'."\n");
+					fwrite($conn, 'Server Error: Option "'.$client.'" not valid.'."\n");
 					
 					// Log error if we have client IP, else log alternate error
 					if (!empty($clientIp)) {
-						throw new Exception('Unknown command "'.$client.'" from client '.$clientIp);
+						throw new Exception('Unknown option "'.$client.'" from client '.$clientIp);
 					} else {
-						throw new Exception('Unknown command "'.$client.'" from unknown client');
+						throw new Exception('Unknown option "'.$client.'" from unknown client');
 					}
 				}
 
